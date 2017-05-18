@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class JobData {
                 values.add(aValue);
             }
         }
+        Collections.sort(values);
 
         return values;
     }
@@ -51,7 +53,9 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        ArrayList<HashMap<String, String>> allJobsCopy = new ArrayList<>(allJobs);
+
+        return allJobsCopy;
     }
 
     /**
@@ -70,17 +74,43 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
+        //create new ArrayList to hold results
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+        String valueLC = value.toLowerCase();
 
+        //for each job posting, search for user-inputted value in the selected column
+        //if value exists, put in results
         for (HashMap<String, String> row : allJobs) {
 
             String aValue = row.get(column);
+            String aValueLC = aValue.toLowerCase();
 
-            if (aValue.contains(value)) {
+            if (aValueLC.contains(valueLC)) {
                 jobs.add(row);
             }
         }
 
+        return jobs;
+    }
+
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        loadData();
+
+        //create new ArrayList to hold results
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+        String valueLC = value.toLowerCase();
+
+        //for each of the job postings, search for the user-inputted value in each of the HashMap values
+        //if the user-inputted value exists and the job post does not already exist in the results, add the job post to the results
+        for (HashMap<String, String> job : allJobs) {
+            for (String aValue : job.values()) {
+                String aValueLC = aValue.toLowerCase();
+                if ((aValueLC.contains(valueLC)) && (!jobs.contains(job))){
+                   jobs.add(job);
+                }
+            }
+        }
         return jobs;
     }
 
